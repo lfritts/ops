@@ -1,0 +1,6 @@
+devtools
+dev
+*.sql
+*.sql.gz
+*.sql.gz.gpg
+.vagrant
