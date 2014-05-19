@@ -1,5 +1,5 @@
 
-app-setup-server: 
+setup-server: 
 	#add in repo for postgresql client 9.3 for db dumps
 	echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" > /tmp/pgdg.list
 	sudo cp /tmp/pgdg.list /etc/apt/sources.list.d/
@@ -24,22 +24,27 @@ app-setup-server:
 	sudo mkdir -p /opt/data/postgresql
 	sudo mkdir -p /opt/data/elasticsearch
 
+	#Add in the secret key file
+	sudo test -s /opt/data/web/secret_key || date +%s | sha256sum | base64 | head -c 32 > secret_key > /opt/data/web/secret_key
+
 	#install packages needed on the server to run the docker containers
 	sudo apt-get install -y supervisor nginx postgresql-client-9.3 
 
 	#link the configuration files
 	test -s /etc/supervisor/conf.d/globallometree.conf || sudo ln -s `pwd`/config/supervisor/globallometree.conf /etc/supervisor/conf.d/globallometree.conf 
 	test -s /etc/nginx/sites-enabled/globallometree || sudo ln -s `pwd`/config/nginx/globallometree /etc/nginx/sites-enabled/globallometree 
- 	sudo rm -f /etc/nginx/sites-enabled/default 
+	sudo rm -f /etc/nginx/sites-enabled/default 
 	sudo service nginx restart
 
 web-deploy:
 	#pull images relevant to deploy just the web container
 	sudo docker pull tomgruner/globallometree-web
 	#restart the web container
-	sudo supervisorctl restart web
+	sudo supervisorctl restart webgunicorn
+	$(MAKE) collect-static
 	
 all-deploy: all-pull all-restart
+	$(MAKE) collect-static
 	
 all-restart: all-stop-and-clean all-start
 
