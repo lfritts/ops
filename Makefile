@@ -24,8 +24,11 @@ setup-server:
 	sudo mkdir -p /opt/data/postgresql
 	sudo mkdir -p /opt/data/elasticsearch
 
+	sudo mkdir -p /opt/logs/supervisor/
+	sudo mkdir -p /opt/logs/nginx/
+
 	#Add in the secret key file
-	sudo test -s /opt/data/web/secret_key || date +%s | sha256sum | base64 | head -c 32 > secret_key > /opt/data/web/secret_key
+	sudo test -s /opt/data/web/secret_key || date +%s | sha256sum | base64 | head -c 32 > /opt/data/web/secret_key
 
 	#install packages needed on the server to run the docker containers
 	sudo apt-get install -y supervisor nginx postgresql-client-9.3 
@@ -77,6 +80,9 @@ collect-static:
 ###################### DATABASE MANAGEMENT #######################
 
 PSQL = PGPASSWORD=globallometree psql -U globallometree -h 127.0.0.1
+
+psql-shell: 
+	$(PSQL) globallometree
 
 #make psql-import-db PSQL_DUMP_FILE=globallometree.dump.2014_04_17.sql.gz
 psql-import-db: 
