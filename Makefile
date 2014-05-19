@@ -11,7 +11,7 @@ setup-server:
 	echo `sudo docker --version`
 
 	#Add our user (won't take effect until next login)
-	sudo usermod -aG docker $USER
+	sudo usermod -aG docker ${USER}
 
 	#get log directories setup
 	sudo mkdir -p /opt/logs/web
