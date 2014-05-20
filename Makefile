@@ -75,7 +75,7 @@ all-start:
 ###################### STATIC FILES #######################
 
 collect-static:
-	./manage.sh collectstatic
+	./manage.sh collectstatic --noinput
 
 ###################### DATABASE MANAGEMENT #######################
 
