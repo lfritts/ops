@@ -43,6 +43,7 @@ web-deploy:
 	#pull images relevant to deploy just the web container
 	sudo docker pull tomgruner/globallometree-web
 	#restart the web container
+	
 	sudo supervisorctl restart webgunicorn
 	$(MAKE) collect-static
 	
@@ -52,6 +53,7 @@ all-deploy: all-pull all-restart
 all-restart: all-stop-and-clean all-start
 
 all-stop-and-clean:
+	sudo service nginx stop
 	#Stop supervisor
 	sudo supervisorctl stop all
 	#Remove and stop any remaining containers 
@@ -70,7 +72,10 @@ all-pull:
 all-start:
 	#Start supervisor
 	sudo supervisorctl reload
+	sudo service nginx start
 
+all-status:
+	sudo supervisorctl status
 
 ###################### STATIC FILES #######################
 
@@ -100,6 +105,6 @@ psql-dump-db:
 	PGPASSWORD=globallometree pg_dump -U globallometree -h 127.0.0.1 globallometree | gzip > ../globallometree.dump.`date +'%Y_%m_%d'`.sql.gz
 	@echo "database exported to globallometree.`date +'%Y_%m_%d'`.sql.gz"
 
-	
+
 
 
