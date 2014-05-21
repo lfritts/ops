@@ -23,11 +23,19 @@ setup-server:
 	sudo mkdir -p /opt/data/elasticsearch
 
 	#postgresql 
-	useradd postgres
+	sudo useradd postgres
 	sudo mkdir -p /opt/data/postgresql
-	chown postgres.postgres /opt/data/postgresql/
-	chmod 0700 /opt/data/postgresql
+	sudo mkdir -p /etc/postgresql/9.3/main/
+	sudo chown postgres.postgres /opt/data/postgresql/
+	sudo chown postgres.postgres /etc/postgresql/9.3/main/
+	sudo chmod 0700 /opt/data/postgresql
+	sudo chmod 0755 /etc/postgresql/9.3/main/
+	sudo rm -f /etc/postgresql/9.3/main/postgresql.conf
+	sudo rm -f /etc/postgresql/9.3/main/pg_hba.conf
+	sudo ln -s `pwd`/config/postgresql/postgresql.conf /etc/postgresql/9.3/main/postgresql.conf
+	sudo ln -s `pwd`/config/postgresql/pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
 	sudo apt-get install -y postgresql-client-9.3 postgresql-9.3 
+
 
 	#Add in the secret key file
 	sudo test -s /opt/data/web/secret_key || date +%s | sha256sum | base64 | head -c 32 > /opt/data/web/secret_key
@@ -38,7 +46,8 @@ setup-server:
 	#link the configuration files
 	rm -f /etc/nginx/sites-enabled/globallometree
 	rm -f /etc/supervisor/conf.d/globallometree.conf
-	
+
+
 	sudo ln -s `pwd`/config/supervisor/globallometree.conf /etc/supervisor/conf.d/globallometree.conf 
 	sudo ln -s `pwd`/config/nginx/globallometree /etc/nginx/sites-enabled/globallometree 
 	sudo rm -f /etc/nginx/sites-enabled/default 
