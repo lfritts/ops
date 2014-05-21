@@ -20,6 +20,13 @@ server {
         proxy_pass http://localhost:9200/;
     }
 
+
+    #Dev only!!
+    #This prevents the site from being indexed
+    location /robots.txt {
+        return 200 "User-agent: *\nDisallow: /";
+    }
+
     location / {
         proxy_pass_header Server;
         proxy_set_header Host $http_host;
