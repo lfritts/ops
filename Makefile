@@ -15,27 +15,32 @@ setup-server:
 
 	#get log directories setup
 	sudo mkdir -p /opt/logs/web
-	sudo mkdir -p /opt/logs/postgresql
 	sudo mkdir -p /opt/logs/esproxy
 
 	#Add in the static and other data directories
 	sudo mkdir -p /opt/data/web/media
 	sudo mkdir -p /opt/data/web/static
-	sudo mkdir -p /opt/data/postgresql
 	sudo mkdir -p /opt/data/elasticsearch
 
-	sudo mkdir -p /opt/logs/supervisor/
-	sudo mkdir -p /opt/logs/nginx/
+	#postgresql 
+	useradd postgres
+	sudo mkdir -p /opt/data/postgresql
+	chown postgres.postgres /opt/data/postgresql/
+	chmod 0700 /opt/data/postgresql
+	sudo apt-get install -y postgresql-client-9.3 postgresql-9.3 
 
 	#Add in the secret key file
 	sudo test -s /opt/data/web/secret_key || date +%s | sha256sum | base64 | head -c 32 > /opt/data/web/secret_key
 
 	#install packages needed on the server to run the docker containers
-	sudo apt-get install -y supervisor nginx postgresql-client-9.3 
+	sudo apt-get install -y supervisor nginx redis-server
 
 	#link the configuration files
-	test -s /etc/supervisor/conf.d/globallometree.conf || sudo ln -s `pwd`/config/supervisor/globallometree.conf /etc/supervisor/conf.d/globallometree.conf 
-	test -s /etc/nginx/sites-enabled/globallometree || sudo ln -s `pwd`/config/nginx/globallometree /etc/nginx/sites-enabled/globallometree 
+	rm -f /etc/nginx/sites-enabled/globallometree
+	rm -f /etc/supervisor/conf.d/globallometree.conf
+	
+	sudo ln -s `pwd`/config/supervisor/globallometree.conf /etc/supervisor/conf.d/globallometree.conf 
+	sudo ln -s `pwd`/config/nginx/globallometree /etc/nginx/sites-enabled/globallometree 
 	sudo rm -f /etc/nginx/sites-enabled/default 
 	sudo service nginx restart
 
