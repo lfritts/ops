@@ -1,10 +1,5 @@
 
 setup-server: 
-	#add in repo for postgresql client 9.3 for db dumps
-	echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" > /tmp/pgdg.list
-	sudo cp /tmp/pgdg.list /etc/apt/sources.list.d/
-	wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-	#the docker install does an update - so we depend on that to update the above repo
 
 	#install docker
 	sudo curl -sL https://get.docker.io/ | sh
@@ -23,19 +18,20 @@ setup-server:
 	sudo mkdir -p /opt/data/elasticsearch
 
 	#postgresql 
-	sudo useradd postgres
-	sudo mkdir -p /opt/data/postgresql
-	sudo mkdir -p /etc/postgresql/9.3/main/
-	sudo chown postgres.postgres /opt/data/postgresql/
-	sudo chown postgres.postgres /etc/postgresql/9.3/main/
-	sudo chmod 0700 /opt/data/postgresql
-	sudo chmod 0755 /etc/postgresql/9.3/main/
+	#add in repo for postgresql client 9.3 for db dumps
+	echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" > /tmp/pgdg.list
+	sudo cp /tmp/pgdg.list /etc/apt/sources.list.d/
+	wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+	sudo apt-get install -y postgresql-client-9.3 postgresql-9.3 postgresql-contrib-9.3
+	pg_dropcluster --stop 9.3 main
+	pg_createcluster --datadir=/opt/data/postgresql 9.3 main
 	sudo rm -f /etc/postgresql/9.3/main/postgresql.conf
 	sudo rm -f /etc/postgresql/9.3/main/pg_hba.conf
 	sudo ln -s `pwd`/config/postgresql/postgresql.conf /etc/postgresql/9.3/main/postgresql.conf
 	sudo ln -s `pwd`/config/postgresql/pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
-	sudo apt-get install -y postgresql-client-9.3 postgresql-9.3 
-
+	
+	#sudo -u postgres /usr/lib/postgresql/9.3/bin/initdb -D /opt/data/postgresql
+	sudo service postgresql start
 
 	#Add in the secret key file
 	sudo test -s /opt/data/web/secret_key || date +%s | sha256sum | base64 | head -c 32 > /opt/data/web/secret_key
@@ -46,7 +42,6 @@ setup-server:
 	#link the configuration files
 	rm -f /etc/nginx/sites-enabled/globallometree
 	rm -f /etc/supervisor/conf.d/globallometree.conf
-
 
 	sudo ln -s `pwd`/config/supervisor/globallometree.conf /etc/supervisor/conf.d/globallometree.conf 
 	sudo ln -s `pwd`/config/nginx/globallometree /etc/nginx/sites-enabled/globallometree 
@@ -98,24 +93,28 @@ collect-static:
 
 ###################### DATABASE MANAGEMENT #######################
 
-PSQL = PGPASSWORD=globallometree psql -U globallometree -h 127.0.0.1
+
+PSQL_ADMIN = sudo -u postgres psql
+PSQL = PGPASSWORD=globallometree psql -U globallometree 
 
 psql-shell: 
 	$(PSQL) globallometree
 
 #make psql-import-db PSQL_DUMP_FILE=globallometree.dump.2014_04_17.sql.gz
-psql-import-db: 
+psql-import: 
 	gunzip -c $(PSQL_DUMP_FILE) | $(PSQL)
 
-psql-drop-db:
+psql-drop:
 	echo "DROP DATABASE  IF EXISTS globallometree;" | $(PSQL) postgres 
 
-psql-create-db:
-	echo "CREATE DATABASE globallometree OWNER globallometree ENCODING 'UTF8' TEMPLATE template0; " | $(PSQL) postgres
+psql-create:
+	echo "CREATE USER globallometree;" | $(PSQL_ADMIN)
+	echo "ALTER USER $POSTGRESQL_USER WITH PASSWORD '$POSTGRESQL_PASS';" | $(PSQL_ADMIN)
+	echo "CREATE DATABASE globallometree OWNER globallometree ENCODING 'UTF8' TEMPLATE template0; " | $(PSQL_ADMIN) 
 
-psql-reset-db: psql-drop-db psql-create-db psql-import-db
+psql-reset: psql-drop psql-create psql-import
 
-psql-dump-db:
+psql-dump:
 	PGPASSWORD=globallometree pg_dump -U globallometree -h 127.0.0.1 globallometree | gzip > ../globallometree.dump.`date +'%Y_%m_%d'`.sql.gz
 	@echo "database exported to globallometree.`date +'%Y_%m_%d'`.sql.gz"
 
