@@ -25,9 +25,7 @@ setup-server:
 	sudo apt-get install -y postgresql-client-9.3 postgresql-9.3 postgresql-contrib-9.3
 	pg_dropcluster --stop 9.3 main
 	pg_createcluster --datadir=/opt/data/postgresql 9.3 main
-	sudo rm -f /etc/postgresql/9.3/main/postgresql.conf
 	sudo rm -f /etc/postgresql/9.3/main/pg_hba.conf
-	sudo ln -s `pwd`/config/postgresql/postgresql.conf /etc/postgresql/9.3/main/postgresql.conf
 	sudo ln -s `pwd`/config/postgresql/pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
 	
 	#sudo -u postgres /usr/lib/postgresql/9.3/bin/initdb -D /opt/data/postgresql
