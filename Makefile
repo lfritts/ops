@@ -66,11 +66,8 @@ all-stop-and-clean:
 	-sudo docker stop `docker ps -q`
 	-sudo docker rm `docker ps -a -q`
 
-
 all-pull:
 	#pull the docker images we need
-	sudo docker pull tomgruner/globallometree-redis
-	sudo docker pull tomgruner/globallometree-postgresql
 	sudo docker pull tomgruner/globallometree-elasticsearch
 	sudo docker pull tomgruner/globallometree-web
 
