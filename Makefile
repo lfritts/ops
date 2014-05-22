@@ -109,7 +109,7 @@ psql-drop:
 
 psql-create:
 	echo "CREATE USER globallometree;" | $(PSQL_ADMIN)
-	echo "ALTER USER $POSTGRESQL_USER WITH PASSWORD '$POSTGRESQL_PASS';" | $(PSQL_ADMIN)
+	echo "ALTER USER globallometree WITH PASSWORD 'globallometree';" | $(PSQL_ADMIN)
 	echo "CREATE DATABASE globallometree OWNER globallometree ENCODING 'UTF8' TEMPLATE template0; " | $(PSQL_ADMIN) 
 
 psql-reset: psql-drop psql-create psql-import
