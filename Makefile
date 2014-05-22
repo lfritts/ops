@@ -18,7 +18,6 @@ setup-server:
 	sudo mkdir -p /opt/data/elasticsearch
 
 	#postgresql 
-	#add in repo for postgresql client 9.3 for db dumps
 	echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" > /tmp/pgdg.list
 	sudo cp /tmp/pgdg.list /etc/apt/sources.list.d/
 	wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
