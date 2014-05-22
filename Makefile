@@ -105,7 +105,8 @@ psql-import:
 	gunzip -c $(PSQL_DUMP_FILE) | $(PSQL)
 
 psql-drop:
-	echo "DROP DATABASE  IF EXISTS globallometree;" | $(PSQL) postgres 
+	echo "DROP DATABASE IF EXISTS globallometree;" | $(PSQL_ADMIN) 
+	echo "DROP USER globallometree;" | $(PSQL_ADMIN) 
 
 psql-create:
 	echo "CREATE USER globallometree;" | $(PSQL_ADMIN)
