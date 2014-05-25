@@ -14,14 +14,14 @@ make deploy
 ------------------------ SETUP A DEV ENVIRONMENT ---------------------
 
 cd ~/ops/dev
+mkdir -p ~/ops/dev/
+git clone git@github.com:GlobAllomeTree/GlobAllomeTree.git ~/ops/dev/glomallometree
 sudo apt-get install -y libjpeg62-dev zlib1g-dev libfreetype6-dev liblcms1-dev graphviz graphviz-dev pkg-config ipython-notebook 
 sudo apt-get install -y libpq-dev python-dev
 sudo apt-get install -y virtualenvwrapper
 echo "source /etc/bash_completion.d/virtualenvwrapper" >> ~/.bashrc
 source ~/.bashrc
 mkvirtualenv globallometree
-mkdir -p ~/ops/dev/
-git clone git@github.com:GlobAllomeTree/GlobAllomeTree.git ~/ops/dev/glomallometree
 
 
 
@@ -32,12 +32,20 @@ git pull
 pip install -r server/requirements.txt
 
 
------------------------ GRAPH OUT MODELS --------------------------
-
-#First setup, activate, and update the dev environment
-
+----------------------- RUN DEVELOPMENT SERVER -------------------
 workon globallometree
 cd ~/ops/dev/glomallometree
-./manage.py graph_models -a -o --no-inheritance all_models.png
+./manage.py runserver 0.0.0.0:8083
+
+
+----------------------- GRAPH OUT MODELS --------------------------
+#First setup, activate, and update the dev environment
+workon globallometree
+cd ~/ops/dev/glomallometree
+./manage.py graph_models allometric_equations locations taxonomy common -x modified,created -o data_models.png
+
+
+
+
 
 

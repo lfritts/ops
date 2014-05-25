@@ -77,6 +77,8 @@ setup-server:
 	sudo mkdir -p /opt/data/elasticsearch	
 	sudo rm -f /usr/local/bin/elasticsearch/config/elasticsearch.yml
 	sudo ln -s `pwd`/config/elasticsearch/elasticsearch.yml /usr/local/bin/elasticsearch/config/elasticsearch.yml
+	sudo ln -s `pwd`/config/elasticsearch/scripts /usr/local/bin/elasticsearch/config/scripts
+
 
 	#redis
 	sudo apt-get install -y redis-server
