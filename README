@@ -1,0 +1,43 @@
+
+------------------------- INITIAL SERVER SETUP -----------------------
+git clone git@github.com:GlobAllomeTree/ops.git ~/ops
+cd ~/ops
+make setup-server
+make psql-create
+make psql-import PSQL_DUMP_FILE=globallometree.dump.2014_04_17.sql.gz
+#extract the media!!
+make deploy
+./manage.sh rebuild_equation_index
+
+
+
+------------------------ SETUP A DEV ENVIRONMENT ---------------------
+
+cd ~/ops/dev
+sudo apt-get install -y libjpeg62-dev zlib1g-dev libfreetype6-dev liblcms1-dev graphviz graphviz-dev pkg-config ipython-notebook 
+sudo apt-get install -y libpq-dev python-dev
+sudo apt-get install -y virtualenvwrapper
+echo "source /etc/bash_completion.d/virtualenvwrapper" >> ~/.bashrc
+source ~/.bashrc
+mkvirtualenv globallometree
+mkdir -p ~/ops/dev/
+git clone git@github.com:GlobAllomeTree/GlobAllomeTree.git ~/ops/dev/glomallometree
+
+
+
+----------------------- ACTIVATE + UPDATE DEV ENV -------------------
+workon globallometree
+cd ~/ops/dev/glomallometree
+git pull
+pip install -r server/requirements.txt
+
+
+----------------------- GRAPH OUT MODELS --------------------------
+
+#First setup, activate, and update the dev environment
+
+workon globallometree
+cd ~/ops/dev/glomallometree
+./manage.py graph_models -a -o --no-inheritance all_models.png
+
+

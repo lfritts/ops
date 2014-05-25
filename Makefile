@@ -1,4 +1,34 @@
 
+
+status:
+	sudo supervisorctl status
+	sudo service postgresql status
+	sudo service redis-server status
+	sudo service nginx status
+
+
+deploy:
+
+	sudo docker pull tomgruner/globallometree-web
+
+	sudo service nginx stop
+	sudo supervisorctl stop all
+	-sudo docker stop `sudo docker ps -q`
+	-sudo docker rm `sudo docker ps -a -q`
+
+	#Backup 
+	$(MAKE) psql-dump
+
+	#Collect static and migrate with the new container
+	./manage.sh collectstatic --noinput
+	./manage.sh migrate --noinput
+
+	sudo supervisorctl reload
+	sudo service nginx start
+
+rebuild-elasticsearch-indices:
+	./manage.sh rebuild_equation_index
+
 setup-server: 
 
 	#install docker
@@ -12,77 +42,54 @@ setup-server:
 	sudo mkdir -p /opt/logs/web
 	sudo mkdir -p /opt/logs/esproxy
 
+	#database dump diretory for backups
+	sudo mkdir -p /opt/dbdumps
+	sudo chmod og+rw /opt/dbdumps
+
 	#Add in the static and other data directories
+	#These directories are mounted from docker to the host in the supervidord conf
 	sudo mkdir -p /opt/data/web/media
 	sudo mkdir -p /opt/data/web/static
-	sudo mkdir -p /opt/data/elasticsearch
+	
+	#Create the secret key file for django sessions
+	sudo test -s /opt/data/web/secret_key || date +%s | sha256sum | base64 | head -c 32 > /tmp/secret_key
+	sudo mv /tmp/secret_key /opt/data/web/secret_key
 
 	#postgresql 
 	echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" > /tmp/pgdg.list
 	sudo cp /tmp/pgdg.list /etc/apt/sources.list.d/
 	wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+	sudo apt-get update
 	sudo apt-get install -y postgresql-client-9.3 postgresql-9.3 postgresql-contrib-9.3
-	pg_dropcluster --stop 9.3 main
-	pg_createcluster --datadir=/opt/data/postgresql 9.3 main
+	sudo test -s /opt/data/postgresql/PG_VERSION || sudo pg_dropcluster --stop 9.3 main
+	sudo pg_createcluster --datadir=/opt/data/postgresql 9.3 main
 	sudo rm -f /etc/postgresql/9.3/main/pg_hba.conf
-	cp `pwd`/config/postgresql/pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
-	chown postgres.postgres /etc/postgresql/9.3/main/pg_hba.conf
+	sudo cp `pwd`/config/postgresql/pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
+	sudo chown postgres.postgres /etc/postgresql/9.3/main/pg_hba.conf
 	sudo service postgresql start
 
-	#Add in the secret key file
-	sudo test -s /opt/data/web/secret_key || date +%s | sha256sum | base64 | head -c 32 > /opt/data/web/secret_key
+	#elasticsearch
+	sudo apt-get install -y openjdk-7-jdk
+	cd /tmp && wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.2.0.tar.gz
+	cd /tmp && tar xvzf /tmp/elasticsearch-1.2.0.tar.gz
+	rm -f /tmp/elasticsearch-1.2.0.tar.gz
+	sudo mv /tmp/elasticsearch-1.2.0 /usr/local/bin/elasticsearch
+	sudo mkdir -p /opt/data/elasticsearch	
+	sudo rm -f /usr/local/bin/elasticsearch/config/elasticsearch.yml
+	sudo ln -s `pwd`/config/elasticsearch/elasticsearch.yml /usr/local/bin/elasticsearch/config/elasticsearch.yml
 
-	#install packages needed on the server to run the docker containers
-	sudo apt-get install -y supervisor nginx redis-server
+	#redis
+	sudo apt-get install -y redis-server
 
-	#link the configuration files
-	rm -f /etc/nginx/sites-enabled/globallometree
-	rm -f /etc/supervisor/conf.d/globallometree.conf
-
-	sudo ln -s `pwd`/config/supervisor/globallometree.conf /etc/supervisor/conf.d/globallometree.conf 
-	sudo ln -s `pwd`/config/nginx/globallometree /etc/nginx/sites-enabled/globallometree 
+	#nginx
+	sudo apt-get install -y nginx 
 	sudo rm -f /etc/nginx/sites-enabled/default 
-	sudo service nginx restart
+	sudo ln -s `pwd`/config/nginx/globallometree /etc/nginx/sites-enabled/globallometree 
 
-web-deploy:
-	#pull images relevant to deploy just the web container
-	sudo docker pull tomgruner/globallometree-web
-	#restart the web container
+	#supervisor
+	sudo apt-get install -y supervisor
+	sudo ln -s `pwd`/config/supervisor/globallometree.conf /etc/supervisor/conf.d/globallometree.conf 
 	
-	sudo supervisorctl restart webgunicorn
-	$(MAKE) collect-static
-	
-all-deploy: all-pull all-restart
-	$(MAKE) collect-static
-	
-all-restart: all-stop-and-clean all-start
-
-all-stop-and-clean:
-	sudo service nginx stop
-	#Stop supervisor
-	sudo supervisorctl stop all
-	#Remove and stop any remaining containers 
-	#there should not acutally be any
-	-sudo docker stop `docker ps -q`
-	-sudo docker rm `docker ps -a -q`
-
-all-pull:
-	#pull the docker images we need
-	sudo docker pull tomgruner/globallometree-elasticsearch
-	sudo docker pull tomgruner/globallometree-web
-
-all-start:
-	#Start supervisor
-	sudo supervisorctl reload
-	sudo service nginx start
-
-all-status:
-	sudo supervisorctl status
-
-###################### STATIC FILES #######################
-
-collect-static:
-	./manage.sh collectstatic --noinput
 
 ###################### DATABASE MANAGEMENT #######################
 
@@ -106,11 +113,9 @@ psql-create:
 	echo "ALTER USER globallometree WITH PASSWORD 'globallometree';" | $(PSQL_ADMIN)
 	echo "CREATE DATABASE globallometree OWNER globallometree ENCODING 'UTF8' TEMPLATE template0; " | $(PSQL_ADMIN) 
 
-psql-reset: psql-drop psql-create psql-import
-
 psql-dump:
-	PGPASSWORD=globallometree pg_dump -U globallometree -h 127.0.0.1 globallometree | gzip > ../globallometree.dump.`date +'%Y_%m_%d'`.sql.gz
-	@echo "database exported to globallometree.`date +'%Y_%m_%d'`.sql.gz"
+	PGPASSWORD=globallometree pg_dump -U globallometree -h 127.0.0.1 globallometree | gzip > /opt/dbdumps/globallometree.dump.`date +'%Y_%m_%d'`.sql.gz
+	@echo "database exported to  /opt/dbdumps/globallometree.`date +'%Y_%m_%d'`.sql.gz"
 
 
 

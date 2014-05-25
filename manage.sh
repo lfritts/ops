@@ -4,7 +4,7 @@
 # "$@" just passes all of the arguments along
 # uses port 8083 if a runserver is needed
 
-docker run -i -t \
+sudo docker run -i -t \
 	-v /opt/data/web:/opt/data \
 	-p 8083:8083 \
 	--net="host" \
