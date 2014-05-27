@@ -56,4 +56,29 @@ make build
 docker push tomgruner/globallometree-web  
 
 
+------------------------ UPDGRADE FROM PHASE 1 DB TO PHASE 2 DB -----------------------------
+
+./manage.py dbshell
+SELECT * INTO linkbox_linkbox FROM cmsplugin_linkbox;
+DROP table cmsplugin_linkbox;
+
+#Migrate the CMS
+./manage.py syncdb
+./manage.py migrate djangocms_text_ckeditor 0001 --fake --delete-ghost-migrations
+./manage.py migrate --noinput --all
+
+-- Go to admin --
+/admin/cms/page/
+Publish the home page
+Publish all the other pages
+
+-- Edit homepage --
+Change the allometric equation database box link
+
+-- Edit database page --
+Remove the geomap
+Edit the link for the Equations box to be /allometric-equations/search/
+Edit the link for the submit equations box to be /allometric-equations/submit
+
+
 
