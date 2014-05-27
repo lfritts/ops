@@ -53,7 +53,8 @@ cd ~/ops/dev/glomallometree
 BUILD NEW DOCKER IMAGE FOR DEPLOY
 cd ~/ops/dev/glomallometree
 make build
-docker push tomgruner/globallometree-web  
+docker push tomgruner/globallometree-web
+#Note that this will soon be available using a simple git push to github and docker.io will rebuild the image
 
 
 ------------------------ UPDGRADE FROM PHASE 1 DB TO PHASE 2 DB -----------------------------
