@@ -1,10 +1,12 @@
 
 ------------------------- INITIAL SERVER SETUP -----------------------
 #Scripts developed and tested on ubuntu 14.04 lts
-git clone git@github.com:GlobAllomeTree/ops.git ~/ops
+sudo apt-get install git
+git clone https://github.com/GlobAllomeTree/ops.git ~/ops
 cd ~/ops
 make setup-server
 make psql-create
+#upload a dumpfile for media/db using scp from your local
 make psql-import PSQL_DUMP_FILE=globallometree.dump.2014_04_17.sql.gz
 #extract the media!!
 make deploy
@@ -15,7 +17,7 @@ make deploy
 
 
 ------------------------ SETUP A DEV ENVIRONMENT ---------------------
-
+#Follow the initial server setup instructions first and get your github keys setup
 cd ~/ops/dev
 mkdir -p ~/ops/dev/
 git clone git@github.com:GlobAllomeTree/GlobAllomeTree.git ~/ops/dev/glomallometree
