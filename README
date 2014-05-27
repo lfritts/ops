@@ -29,23 +29,21 @@ source ~/.bashrc
 mkvirtualenv globallometree
 
 
-
------------------------ ACTIVATE + UPDATE DEV ENV -------------------
+ACTIVATE + UPDATE DEV ENV
 workon globallometree
 cd ~/ops/dev/glomallometree
 git pull
 pip install -r server/requirements.txt
 
 
------------------------ RUN DEVELOPMENT SERVER -------------------
+RUN DEVELOPMENT SERVER
 workon globallometree
 cd ~/ops/dev/glomallometree
 ./manage.py runserver 0.0.0.0:8083
 #Open http://localhost:8083/ in your browser
 
 
------------------------ GRAPH OUT MODELS --------------------------
-#First setup, activate, and update the dev environment
+GRAPH OUT MODELS
 workon globallometree
 cd ~/ops/dev/glomallometree
 ./manage.py graph_models allometric_equations locations taxonomy common -x modified,created -o data_models.png
