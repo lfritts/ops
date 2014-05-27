@@ -6,8 +6,9 @@ git clone https://github.com/GlobAllomeTree/ops.git ~/ops
 cd ~/ops
 make setup-server
 make psql-create
-#upload a dzipped db dump using scp from your local PSQL_DUMP_FILE should be set to the path of that file
-make psql-import PSQL_DUMP_FILE=globallometree.dump.2014_04_17.sql.gz
+#upload a gzipped db dump using scp from your local PSQL_DUMP_FILE should be set to the path of that file
+#example: scp globallometree.dump.2014_05_27.sql.gz glo_dev2:ops/
+make psql-import PSQL_DUMP_FILE=globallometree.dump.2014_05_27.sql.gz
 #extract the media!!
 make deploy
 ./manage.sh rebuild_equation_index
