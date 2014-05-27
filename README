@@ -7,17 +7,9 @@ cd ~/ops
 make setup-server
 make psql-create
 #upload a gzipped db dump using scp from your local PSQL_DUMP_FILE should be set to the path of that file
-#example: scp globallometree.dump.2014_05_27.sql.gz glo_dev2:ops/
 make psql-import PSQL_DUMP_FILE=globallometree.dump.2014_05_27.sql.gz
 #upload a gzipped copy of all of the media from phase 1 server (from directory /opt/apps/globallometree/media)
-#cp -R /opt/apps/globallometree/media /tmp/media
-#cd /tmp
-#tar -cvf media.tar media
-#rm -rf /tmp/media 
-#gzip /tmp/media.tar
-#scp root@globallometree.org:/tmp/media.tar.gz .
-#scp /media.tar.gz root@173.255.250.246:/tmp
-#
+#unzip the media to /opt/data/web/media on the new server
 make deploy
 ./manage.sh rebuild_equation_index
 #Open http://localhost:8080/ in your browser if using the Vagrantfile
