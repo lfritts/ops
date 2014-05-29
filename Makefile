@@ -7,24 +7,36 @@ status:
 	sudo service nginx status
 
 
-deploy:
+deploy: pull-docker-images stop-web psql-dump collectstatic migrate start-web
 
+
+pull-docker-images:
 	sudo docker pull tomgruner/globallometree-web
 
+collectstatic:
+	#Collect static and migrate with the new container
+	./manage.sh collectstatic --noinput
+
+migrate:
+	./manage.sh migrate --all --noinput
+
+stop-web:
 	sudo service nginx stop
 	sudo supervisorctl stop all
 	-sudo docker stop `sudo docker ps -q`
 	-sudo docker rm `sudo docker ps -a -q`
 
-	#Backup 
-	$(MAKE) psql-dump
-
-	#Collect static and migrate with the new container
-	./manage.sh collectstatic --noinput
-	./manage.sh migrate --noinput
-
+start-web:
 	sudo supervisorctl reload
 	sudo service nginx start
+
+stop-db:
+	sudo service postgresql stop
+
+start-db:
+	sudo service postgresql start
+
+restart-all: stop-web stop-db start-db start-web status
 
 rebuild-elasticsearch-indices:
 	./manage.sh rebuild_equation_index
@@ -78,7 +90,6 @@ setup-server:
 	sudo rm -f /usr/local/bin/elasticsearch/config/elasticsearch.yml
 	sudo ln -s `pwd`/config/elasticsearch/elasticsearch.yml /usr/local/bin/elasticsearch/config/elasticsearch.yml
 	sudo ln -s `pwd`/config/elasticsearch/scripts /usr/local/bin/elasticsearch/config/scripts
-
 
 	#redis
 	sudo apt-get install -y redis-server
