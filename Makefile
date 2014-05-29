@@ -11,7 +11,7 @@ deploy: pull-docker-images stop-web psql-dump collectstatic migrate start-web
 
 
 pull-docker-images:
-	sudo docker pull tomgruner/globallometree-web
+	sudo docker pull tomgruner/globallometree
 
 collectstatic:
 	#Collect static and migrate with the new container

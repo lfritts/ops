@@ -8,5 +8,5 @@ sudo docker run -i -t \
 	-v /opt/data/web:/opt/data \
 	-p 8083:8083 \
 	--net="host" \
-	tomgruner/globallometree-web \
+	tomgruner/globallometree \
 	/opt/code/manage.py "$@"

@@ -51,10 +51,18 @@ cd ~/ops/dev/glomallometree
 
 
 BUILD NEW DOCKER IMAGE FOR DEPLOY
+#Take the last commit sha and push it to origin deploy
 cd ~/ops/dev/glomallometree
-make build
-docker push tomgruner/globallometree-web
-#Note that this will soon be available using a simple git push to github and docker.io will rebuild the image
+git log -n 1
+#commit 634b33efd02a2e251a6cd4555d75f694374b9942
+#Author: Thomas Gruner <tom.gruner@gmail.com>
+#Date:   Wed May 28 19:40:49 2014 -0700
+git push origin 634b33efd02a2e251a6cd4555d75f694374b9942:deploy
+
+#Wait for trusted build to complete at https://index.docker.io/u/tomgruner/globallometree/builds_history/20088/
+
+
+
 
 
 ------------------------ UPDGRADE FROM PHASE 1 DB TO PHASE 2 DB -----------------------------
