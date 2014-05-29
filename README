@@ -1,12 +1,15 @@
 
 ------------------------- INITIAL SERVER SETUP -----------------------
 #Scripts developed and tested on ubuntu 14.04 lts
-git clone git@github.com:GlobAllomeTree/ops.git ~/ops
+sudo apt-get install git make
+git clone https://github.com/GlobAllomeTree/ops.git ~/ops
 cd ~/ops
 make setup-server
 make psql-create
-make psql-import PSQL_DUMP_FILE=globallometree.dump.2014_04_17.sql.gz
-#extract the media!!
+#upload a gzipped db dump using scp from your local PSQL_DUMP_FILE should be set to the path of that file
+make psql-import PSQL_DUMP_FILE=globallometree.dump.2014_05_27.sql.gz
+#upload a gzipped copy of all of the media from phase 1 server (from directory /opt/apps/globallometree/media)
+#unzip the media to /opt/data/web/media on the new server
 make deploy
 ./manage.sh rebuild_equation_index
 #Open http://localhost:8080/ in your browser if using the Vagrantfile
@@ -15,7 +18,7 @@ make deploy
 
 
 ------------------------ SETUP A DEV ENVIRONMENT ---------------------
-
+#Follow the initial server setup instructions first and get your github keys setup
 cd ~/ops/dev
 mkdir -p ~/ops/dev/
 git clone git@github.com:GlobAllomeTree/GlobAllomeTree.git ~/ops/dev/glomallometree
@@ -27,29 +30,56 @@ source ~/.bashrc
 mkvirtualenv globallometree
 
 
-
------------------------ ACTIVATE + UPDATE DEV ENV -------------------
+ACTIVATE + UPDATE DEV ENV
 workon globallometree
 cd ~/ops/dev/glomallometree
 git pull
 pip install -r server/requirements.txt
 
 
------------------------ RUN DEVELOPMENT SERVER -------------------
+RUN DEVELOPMENT SERVER
 workon globallometree
 cd ~/ops/dev/glomallometree
 ./manage.py runserver 0.0.0.0:8083
 #Open http://localhost:8083/ in your browser
 
 
------------------------ GRAPH OUT MODELS --------------------------
-#First setup, activate, and update the dev environment
+GRAPH OUT MODELS
 workon globallometree
 cd ~/ops/dev/glomallometree
 ./manage.py graph_models allometric_equations locations taxonomy common -x modified,created -o data_models.png
 
 
+BUILD NEW DOCKER IMAGE FOR DEPLOY
+cd ~/ops/dev/glomallometree
+make build
+docker push tomgruner/globallometree-web
+#Note that this will soon be available using a simple git push to github and docker.io will rebuild the image
 
+
+------------------------ UPDGRADE FROM PHASE 1 DB TO PHASE 2 DB -----------------------------
+
+./manage.py dbshell
+SELECT * INTO linkbox_linkbox FROM cmsplugin_linkbox;
+DROP table cmsplugin_linkbox;
+
+#Migrate the CMS
+./manage.py syncdb
+./manage.py migrate djangocms_text_ckeditor 0001 --fake --delete-ghost-migrations
+./manage.py migrate --noinput --all
+
+-- Go to admin --
+/admin/cms/page/
+Publish the home page
+Publish all the other pages
+
+-- Edit homepage --
+Change the allometric equation database box link
+
+-- Edit database page --
+Remove the geomap
+Edit the link for the Equations box to be /allometric-equations/search/
+Edit the link for the submit equations box to be /allometric-equations/submit
 
 
 
