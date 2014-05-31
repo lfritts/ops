@@ -117,5 +117,10 @@ Remove the geomap
 Edit the link for the Equations box to be /allometric-equations/search/
 Edit the link for the submit equations box to be /allometric-equations/submit
 
+------------------------ OTHER LAUNCH NOTES -----------------------------
+
+
+Remove the dev robots.txt response from the nginx config in this repository
+
 
 
