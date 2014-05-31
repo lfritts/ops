@@ -62,6 +62,27 @@ git push origin 634b33efd02a2e251a6cd4555d75f694374b9942:deploy
 #Wait for trusted build to complete at https://index.docker.io/u/tomgruner/globallometree/builds_history/20088/
 
 
+BUILD A DOCKER IMAGE LOCALLY AND DEPLOY IT
+cd ~/ops/dev/glomallometree
+make build
+#Removing intermediate container c4a4b8124806
+#Successfully built 119fcf7c8326
+cd ~/ops
+make deploy-image-id IMAGE_ID=119fcf7c8326
+
+
+DEPLOY A SPECIFIC IMAGE ID ON THE SERVER
+make deploy-image-id IMAGE_ID=119fcf7c8326
+
+
+------------------------- LOGGING --------------------------
+
+Supervisord logs
+/var/log/supervisord.log
+/var/log/supervisor/webgunicorn-stderr....
+/var/log/supervisor/webgunicorn-stdout....
+/var/log/elasticsearch-stderr...
+/var/log/elasticsearch-stdout...
 
 
 
