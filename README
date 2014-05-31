@@ -67,6 +67,7 @@ cd ~/ops/dev/glomallometree
 make build
 #Removing intermediate container c4a4b8124806
 #Successfully built 119fcf7c8326
+make push
 cd ~/ops
 make deploy-image-id IMAGE_ID=119fcf7c8326
 
@@ -84,7 +85,13 @@ Supervisord logs
 /var/log/elasticsearch-stderr...
 /var/log/elasticsearch-stdout...
 
+Nginx logs
+/var/log/nginx/access.log
+/var/log/nginx/error.log
 
+Django and Gunicorn Logs
+/opt/logs/web/django.log
+/opt/logs/web/gunicorn.log
 
 ------------------------ UPDGRADE FROM PHASE 1 DB TO PHASE 2 DB -----------------------------
 
