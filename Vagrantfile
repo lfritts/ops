@@ -10,8 +10,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box_url = "https://cloud-images.ubuntu.com/vagrant/trusty/current/trusty-server-cloudimg-amd64-vagrant-disk1.box"
 
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network :forwarded_port, guest: 80, host: 8080
-  config.vm.network :forwarded_port, guest: 8082, host: 8082 #Web Server
+  config.vm.network :forwarded_port, guest: 80, host: 8080 #Nginx
+  config.vm.network :forwarded_port, guest: 8082, host: 8082 #Gunicorn (no site media)
   config.vm.network :forwarded_port, guest: 8083, host: 8083 #Development Server
   config.vm.network :forwarded_port, guest: 5432, host: 5432 #PostgreSQL
   config.vm.network :forwarded_port, guest: 9200, host: 9200 #Elasticsearch Server (direct)
