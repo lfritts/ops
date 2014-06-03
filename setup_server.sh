@@ -43,10 +43,10 @@ sudo service postgresql start
 
 #elasticsearch
 sudo apt-get install -y openjdk-7-jdk
-cd /tmp && wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.2.0.tar.gz
-cd /tmp && tar xvzf /tmp/elasticsearch-1.2.0.tar.gz
-rm -f /tmp/elasticsearch-1.2.0.tar.gz
-sudo mv /tmp/elasticsearch-1.2.0 /usr/local/bin/elasticsearch
+wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.2.0.tar.gz
+tar xvzf elasticsearch-1.2.0.tar.gz
+rm -f elasticsearch-1.2.0.tar.gz
+sudo mv elasticsearch-1.2.0 /usr/local/bin/elasticsearch
 sudo mkdir -p /opt/data/elasticsearch	
 sudo rm -f /usr/local/bin/elasticsearch/config/elasticsearch.yml
 sudo ln -s `pwd`/config/elasticsearch/elasticsearch.yml /usr/local/bin/elasticsearch/config/elasticsearch.yml
