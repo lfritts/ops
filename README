@@ -19,8 +19,6 @@ make deploy
 
 ------------------------ SETUP A DEV ENVIRONMENT ---------------------
 #Follow the initial server setup instructions first and get your github keys setup
-cd ~/ops/dev
-mkdir -p ~/ops/dev/
 git clone git@github.com:GlobAllomeTree/GlobAllomeTree.git ~/ops/dev/glomallometree
 sudo apt-get install -y libjpeg62-dev zlib1g-dev libfreetype6-dev liblcms1-dev graphviz graphviz-dev pkg-config ipython-notebook 
 sudo apt-get install -y libpq-dev python-dev
