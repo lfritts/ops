@@ -102,6 +102,14 @@ DROP table cmsplugin_linkbox;
 ./manage.py migrate djangocms_text_ckeditor 0001 --fake --delete-ghost-migrations
 ./manage.py migrate --noinput --all
 
+#Migrate the Data
+./manage.py import_countries
+./manage.py normalize
+./manage.py geocode_accounts
+
+#Rebuild the indexes
+./manage.py rebuild_equation_index
+
 -- Go to admin --
 /admin/cms/page/
 Publish the home page
