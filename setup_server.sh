@@ -63,4 +63,4 @@ sudo ln -s `pwd`/config/nginx/globallometree /etc/nginx/sites-enabled/globallome
 #supervisor
 sudo apt-get install -y supervisor
 sudo ln -s `pwd`/config/supervisor/globallometree.conf /etc/supervisor/conf.d/globallometree.conf 
-	
+sudo ln -s `pwd`/config/supervisor/askbot.conf /etc/supervisor/conf.d/askbot.conf 
