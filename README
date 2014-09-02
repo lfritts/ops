@@ -44,6 +44,7 @@ cd ~/ops/dev/glomallometree
 
 GRAPH OUT MODELS
 workon globallometree
+pip install -r ~/ops/dev/glomallometree/server/requirements.debug.txt
 cd ~/ops/dev/glomallometree
 ./manage.py graph_models allometric_equations locations taxonomy common -x modified,created -o data_models.png
 
