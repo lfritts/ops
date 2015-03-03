@@ -1,6 +1,0 @@
-
-#Customize elasticsearch to store its data in the opt directory
-path.data: /opt/data/elasticsearch
-
-#Add in a custom cluster name and node name
-cluster.name: GlobAllomeTree
