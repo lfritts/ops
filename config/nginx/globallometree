@@ -1,6 +1,9 @@
 server {
     listen 80 default_server;
     
+    #askbot redirects
+    rewrite /forum/account/signup/ /accounts/register/ redirect;
+
     #Serve uploaded media images
     location /media/ {
         alias /opt/data/web/media/;
@@ -13,12 +16,6 @@ server {
         expires 30d;
     }
 
-    #Pass any requests that go to /searchapi directly to elastic search
-    location /searchapi/ {
-        proxy_connect_timeout 10;
-        proxy_read_timeout 10;
-        proxy_pass http://localhost:9200/;
-    }
 
     location /elastic/ {
         proxy_connect_timeout 10;
@@ -67,8 +64,6 @@ server {
         proxy_pass http://localhost:8082/;
     }
 
-
-    
 
     # what to serve if upstream is not available or crashes
     error_page 500 502 503 504 /media/50x.html;

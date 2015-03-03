@@ -1,19 +1,4 @@
 
-------------------------- INITIAL SERVER SETUP -----------------------
-#Scripts developed and tested on ubuntu 14.04 lts
-sudo apt-get -y install git make
-git clone https://github.com/GlobAllomeTree/ops.git ~/ops
-cd ~/ops
-./setup_server.sh
-make psql-create
-#upload a gzipped db dump using scp from your local PSQL_DUMP_FILE should be set to the path of that file
-make psql-import PSQL_DUMP_FILE=globallometree.dump.2014_05_27.sql.gz
-#upload a gzipped copy of all of the media from phase 1 server (from directory /opt/apps/globallometree/media)
-#unzip the media to /opt/data/web/media on the new server
-make deploy
-./manage.sh rebuild_equation_index
-#Open http://localhost:8080/ in your browser if using the Vagrantfile
-#otherwise nginx should be available under port 80 as usual
 
 
 
@@ -47,87 +32,13 @@ workon globallometree
 pip install -r ~/ops/dev/glomallometree/server/requirements.debug.txt
 cd ~/ops/dev/glomallometree
 ./manage.py graph_models allometric_equations locations taxonomy common -x modified,created -o data_models.png
+./manage.py graph_models --no-inheritance --pygraphviz -g -o data_models_v2.png data_sharing common allometric_equations wood_densities locations taxonomy 
 
 
-BUILD NEW DOCKER IMAGE FOR DEPLOY
-#Take the last commit sha and push it to origin deploy
-cd ~/ops/dev/glomallometree
-git log -n 1
-#commit 634b33efd02a2e251a6cd4555d75f694374b9942
-#Author: Thomas Gruner <tom.gruner@gmail.com>
-#Date:   Wed May 28 19:40:49 2014 -0700
-git push origin 634b33efd02a2e251a6cd4555d75f694374b9942:deploy
-
-#Wait for trusted build to complete at https://index.docker.io/u/tomgruner/globallometree/builds_history/20088/
 
 
-BUILD A DOCKER IMAGE LOCALLY AND DEPLOY IT
-cd ~/ops/dev/glomallometree
-make build
-#Removing intermediate container c4a4b8124806
-#Successfully built 119fcf7c8326
-make push
-cd ~/ops
-make deploy-image-id IMAGE_ID=119fcf7c8326
 
 
-DEPLOY A SPECIFIC IMAGE ID ON THE SERVER
-make deploy-image-id IMAGE_ID=119fcf7c8326
-
-
-------------------------- LOGGING --------------------------
-
-Supervisord logs
-/var/log/supervisord.log
-/var/log/supervisor/webgunicorn-stderr....
-/var/log/supervisor/webgunicorn-stdout....
-/var/log/elasticsearch-stderr...
-/var/log/elasticsearch-stdout...
-
-Nginx logs
-/var/log/nginx/access.log
-/var/log/nginx/error.log
-
-Django and Gunicorn Logs
-/opt/logs/web/django.log
-/opt/logs/web/gunicorn.log
-
------------------------- UPDGRADE FROM PHASE 1 DB TO PHASE 2 DB -----------------------------
-
-./manage.py dbshell
-SELECT * INTO linkbox_linkbox FROM cmsplugin_linkbox;
-DROP table cmsplugin_linkbox;
-
-#Migrate the CMS
-./manage.py syncdb
-./manage.py migrate djangocms_text_ckeditor 0001 --fake --delete-ghost-migrations
-./manage.py migrate --noinput --all
-
-#Migrate the Data
-./manage.py import_countries
-./manage.py normalize
-./manage.py geocode_accounts
-
-#Rebuild the indexes
-./manage.py rebuild_equation_index
-
--- Go to admin --
-/admin/cms/page/
-Publish the home page
-Publish all the other pages
-
--- Edit homepage --
-Change the allometric equation database box link
-
--- Edit database page --
-Remove the geomap
-Edit the link for the Equations box to be /allometric-equations/search/
-Edit the link for the submit equations box to be /allometric-equations/submit
-
------------------------- OTHER LAUNCH NOTES -----------------------------
-
-
-Remove the dev robots.txt response from the nginx config in this repository
 
 
 
