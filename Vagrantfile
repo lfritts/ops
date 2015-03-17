@@ -6,7 +6,7 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.box = "globallometree_03_04_2015"
+  config.vm.box = "globallometree_03_16_2015"
 
   # accessing "localhost:8080" will access port 80 on the guest machine.
   config.vm.network :forwarded_port, guest: 8083, host: 8083 # Glo Development Server
@@ -27,7 +27,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.customize ["modifyvm", :id, 
                   "--memory", "4096",
                   "--cpus", 6,
-                  "--name", "GlobAllomeTree ops"]
+                  "--name", "GlobAllomeTree ops2"]
   end
 
 end
